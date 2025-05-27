@@ -1,0 +1,9 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autonumber
+p3_运营后台->p8_nnmp_micro_sync:组装要补充的SQL
+p8_nnmp_micro_sync->p8_nnmp_micro_sync:记录手工补偿操作
+p8_nnmp_micro_sync->p8_nnmp_micro_sync:调用手工拼接方法
+p8_nnmp_micro_sync->p5mcp:通过p4调用p5的接口
+p5mcp->标准区_定时任务:调用定时任务提供的数据同步执行接口
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+cloud 标准区{
+
+ node 定时任务服务{
+    component 数据同步执行模块
+    database "oracle_common"
+ }
+
+  node clb
+
+  node web
+
+}
+
+cloud 自用区{
+
+
+  node p5mcp{
+    component 数据同步模块
+  }
+
+  node nnmp_micro_sync{
+    component 数据同步接收模块
+
+  }
+   node p8_common{
+      boundary 修改数据
+      component 数据同步拦截模块
+      database "tidb_common"
+    }
+    node 玉衡
+    node p4
+}
+
+
+[修改数据] --> [数据同步拦截模块]:1
+[数据同步拦截模块] --> [tidb_common]:2
+[数据同步拦截模块] --> [数据同步接收模块]:3玉衡调用
+[数据同步接收模块] --> [数据同步模块]:4 p4调用
+
+[p5mcp] .L[#red].> [p4]:注册p4
+[p4] .[#red].> [nnmp_micro_sync]:拉取p4注册信息
+[玉衡] .L[#red].> [p8_common]:拉取玉衡注册信息
+[nnmp_micro_sync] .[#red].> [玉衡]:注册玉衡
+
+[数据同步模块] --> [clb]:5
+[clb] --> [web]:6
+[web] --> [数据同步执行模块]:7
+[数据同步执行模块] --> [oracle_common]:8
+@enduml

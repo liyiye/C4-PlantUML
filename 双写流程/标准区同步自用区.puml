@@ -1,0 +1,55 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+cloud 标准区{
+ node 订单服务{
+     boundary 修改数据
+     component 数据同步发送模块
+     database "oracle" {
+       frame "cld_sys_param"
+     }
+ }
+ node 定时任务服务{
+    component 数据同步接收模块
+ }
+ node clb
+
+ node web
+
+
+}
+
+cloud 自用区{
+
+  node F5
+
+  node p5web
+
+  node p4
+
+  node p5mcp{
+    component 数据同步模块
+  }
+
+  node nnmp_micro_sync{
+    component 数据同步执行模块
+
+    database "tidb"
+
+  }
+}
+
+
+[修改数据] --> [数据同步发送模块]:1
+[数据同步发送模块] --> [cld_sys_param]:2写
+[数据同步发送模块] --> [clb]:3事务提交后调用同步接口
+[clb] --> [web]:4转发到负载
+[web] --> [数据同步接收模块]: 5负载到定时任务
+[数据同步接收模块] --> [F5]:6
+[F5] --> [p5web]:7
+[p5web] --> [数据同步模块]:8
+[数据同步模块] --> [数据同步执行模块]:9通过p4调用
+[p4] .L[#red].> [数据同步模块]:拉取p4数据
+[nnmp_micro_sync] .[#red].> [p4]:注册到 p4
+[数据同步执行模块] --> [tidb]:10
+@enduml

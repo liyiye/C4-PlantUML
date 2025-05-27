@@ -1,0 +1,79 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+cloud 标准区{
+
+ node 定时任务服务{
+    component 数据同步执行模块
+    database "oracle_common"
+ }
+
+  node clb
+
+  node web
+
+}
+
+cloud 自用区{
+
+
+  node p5mcp{
+    component 数据同步模块
+  }
+
+  node nnmp_micro_sync{
+    component 数据同步接收模块
+
+  }
+   node p8_common{
+      boundary 修改数据
+      component 数据同步拦截模块
+      database "tidb_common"
+    }
+    node 玉衡
+    node p4
+    node p5web
+}
+
+
+[修改数据] --> [数据同步拦截模块]:1
+[数据同步拦截模块] --> [tidb_common]:2
+[数据同步拦截模块] --> [数据同步接收模块]:3玉衡调用
+[数据同步接收模块] --> [数据同步模块]:4 p4调用
+
+[p5mcp] .L[#red].> [p4]:注册p4：\n A3341DS02(运营后台交易)，\n A3341DS01（数据同步交易）
+[p4] .[#red].> [nnmp_micro_sync]:拉取p4注册信息
+[玉衡] .L[#red].> [p8_common]:拉取玉衡注册信息
+[nnmp_micro_sync] .[#red].> [玉衡]:注册玉衡
+
+[数据同步模块] --> [p5web]:5
+[p5web] --> [clb]:6
+[clb] --> [web]:7
+[web] --> [数据同步执行模块]:8
+[数据同步执行模块] --> [oracle_common]:9
+
+note right of [p5mcp]
+  A3341DS01-->10.206.194.11:8189/clp_ds/txCtrl/p5xml?txcode=A3341DS01
+  A3341DS02-->10.206.194.11:8189/clp_ds/txCtrl/p5xml?txcode=A3341DS02
+end note
+note right of [定时任务服务]
+  广研_建行生活_服务_NF_batch18
+  广研_建行生活_服务_NF_batch19
+  广研_建行生活_服务_NF_batch20
+  广研_建行生活_服务_NF_batch21
+end note
+note right of [clb]
+  10.206.194.11:8189 根据路径clp_ds转发到web
+end note
+note right of [web]
+   广研_云商平台_外联_WEB04
+   广研_云商平台_外联_WEB05
+   广研_云商平台_外联_WEB07
+   广研_云商平台_外联_WEB08
+   广研_云商平台_外联_WEB09
+   广研_建行生活_服务_WB_OUT_WS25
+   根据 txcode转发
+   A3341DS02-->ip:8101/service/txCtrl/p5xml
+   A3341DS01-->ip:8101/service/excuteSql
+end note
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+cloud 标准区{
+
+ node 定时任务服务{
+    component 数据同步执行模块
+    database "oracle_common"
+ }
+database 标准区_kafka
+
+   node clb
+   node web
+}
+
+cloud 自用区{
+  node p5mcp{
+    component 数据同步模块
+  }
+
+  node nnmp_micro_sync{
+    component 数据同步接收模块
+
+  }
+   node p8_common{
+      boundary 修改数据
+      component 数据同步拦截模块
+      database "tidb_common"
+    }
+  database p8_kafka
+  node p4
+}
+
+
+[修改数据] --> [数据同步拦截模块]:1
+[数据同步拦截模块] --> [tidb_common]:2
+[数据同步拦截模块] --> [p8_kafka]:3 发送同步消息
+[p8_kafka] ..> [数据同步接收模块]: 4 拉取消费同步消息
+[数据同步接收模块] --> [数据同步模块]:5
+
+[p5mcp] .L[#red].> [p4]:注册p4
+[p4] .[#red].> [nnmp_micro_sync]:拉取p4注册信息
+
+[数据同步模块] --> [clb]:6
+[clb] --> [web]:7
+[web] --> [数据同步执行模块]:8
+[数据同步执行模块] --> [标准区_kafka]:9 发送同步消息
+[标准区_kafka] ..> [数据同步执行模块]:10 拉取消费同步消息
+[数据同步执行模块] --> [oracle_common]:11
+@enduml

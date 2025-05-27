@@ -1,0 +1,9 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autonumber
+自用区_sync工程->自用区_基础数据库:同步失败记录失败信息
+自用区_sync工程-[#red]>自用区_kafka:发送失败记录信息到kafka
+自用区_kafka-->自用区_sync工程:消费失败的记录消息
+自用区_sync工程->自用区_comm工程:调用A3341R001
+自用区_comm工程->NPSP:通过p4调用N-PSP的TA238RH02
+@enduml
