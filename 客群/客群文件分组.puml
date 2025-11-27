@@ -1,0 +1,9 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+
+start
+:读取客群目录，解析客群编号;
+:查询数据库区分新增或更新客群;
+:保存客群信息到redis;
+stop
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+start
+
+if(抢占新增客群信息) then (是)
+repeat :读取客群文件数据;
+
+if(插入数据失败) then (是)
+:输出错误数据的文件;
+else (否)
+:插入数据库;
+:更新活跃的客群redis缓存;
+endif
+:更新客群的成功，失败数量;
+repeat while (抢占新增客群信息) is (是) not (否)
+stop
+else (否)
+end
+@enduml

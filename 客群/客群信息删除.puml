@@ -1,0 +1,13 @@
+@startuml
+'https://plantuml.com/activity-diagram-beta
+start
+
+if(抢占更新客群信息) then (是)
+repeat :分页读取客群信息，进行删除;
+:更新客群活跃的redis缓存;
+repeat while (抢占更新客群信息) is (是) not (否)
+stop
+else (否)
+
+end
+@enduml
